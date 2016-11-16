@@ -31,7 +31,7 @@ class RouterComponent extends Component {
             <Scene key="root">
               <Scene key="auth" initial hideNavBar>
                 <Scene key="splashScreen" component={SplashScreen} initial/>
-                <Scene key="login" component={Login}/>
+                <Scene key="login" component={Login} />
                 <Scene key="register" component={Register}/>
               </Scene>
 

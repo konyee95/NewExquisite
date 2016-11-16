@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {
+  Alert,
   View,
   Text,
 } from 'react-native';
@@ -21,80 +22,106 @@ const deviceWidth = require('Dimensions').get('window').width;
 const deviceHeight = require('Dimensions').get('window').height;
 
 class Register extends Component{
-  state = {
-    first_name: '',
-    last_name:'',
-    email: '',
-    password: '',
-    address:'',
-    telNo:'',
+
+  constructor() {
+    super()
+    this.state = {
+      first_name: '',
+      last_name:'',
+      email: '',
+      password: '',
+      address:'',
+      telNo:'',
+      buttonState: 'signUp'
+    }
+
+    this.buttonStates = {
+      signUp: {
+        text: 'SIGN UP',
+        onPress: () => {
+          this.registerUser();
+        },
+      },
+      loading: {
+        spinner: true,
+        text: 'SIGNING USER UP'
+      }
+    };
   }
 
  registerUser(){
    const { email,password } = this.state;
-    firebase.auth().createUserWithEmailAndPassword(email, password)
-      .then(user => Actions.main({type:'reset'}))
-      .catch((error) => console.log('error'));
+   if (email === '' || password === '') {
+     Alert.alert('Error', 'Please make sure you have all the fields filled in')
+   } else {
+     this.setState({ buttonState: 'loading' })
+     firebase.auth().createUserWithEmailAndPassword(email, password)
+       .then(user => {
+         this.setState({ buttonState: 'signUp' })
+         Actions.main({type:'reset'})
+       })
+       .catch((error) => {
+         this.setState({ buttonState: 'signUp' })
+         Alert.alert('Error', error.message)
+       });
+   }
  }
 
 
   render(){
-    const {centerEverything,skeleton,container,innerContainer,buttonStyle,textStyle}=styles;
+    const { textStyle,container, upperContainer, middleContainer, bottomContainer,
+      skeleton, centerEverything, buttonContainer, buttonStyle, labelStyle} = styles;
     return(
-      <View style={container}>
-        <View style={innerContainer}>
-          <Text style={textStyle}> Register account </Text>
+      <View style={[container]}>
+        <Header headerText="EXQUISITE" />
+        <View style={[container]}>
+          <View style={[centerEverything, upperContainer]}>
+              <Text style={textStyle}>SIGN UP</Text>
+          </View>
+
+          <View style={[centerEverything, middleContainer]}>
+            <View style={[buttonContainer]}>
+              <Text style={labelStyle}>Email</Text>
+              <Input
+                placeholder="Email"
+                onChangeText ={(email) => this.setState({email})}
+                value={this.state.email} />
+            </View>
+            <View style={buttonContainer}>
+              <Text style={labelStyle}>Password</Text>
+              <Input
+                placeholder="Password"
+                onChangeText ={(password) => this.setState({password})}
+                value={this.state.password}
+                secureTextEntry />
+            </View>
+            <View style={[buttonContainer]}>
+              <Text style={labelStyle}>First Name</Text>
+              <Input
+                placeholder="First Name"
+                onChangeText={(first_name) => this.setState({first_name})}
+                value={this.state.first_name} />
+            </View>
+          </View>
+
+          <View style={[centerEverything, bottomContainer]}>
+            <ButtonComponent
+              type="primary"
+              shape="rectangle"
+              style={buttonStyle}
+              buttonState={this.state.buttonState}
+              states={this.buttonStates}
+            />
+
+            <ButtonComponent
+              type="primary"
+              shape="rectangle"
+              style={buttonStyle}
+              onPress={() =>Actions.pop()}
+              text="GO BACK"
+            />
+          </View>
         </View>
-
-        <View style={innerContainer}>
-          <Input
-            label="First Name"
-            placeholder="First Name"
-            onChangeText ={(first_name) => this.setState({first_name})}
-            value={this.state.first_name} />
-
-            <Input
-              label="Last Name"
-              placeholder="Last Name"
-              onChangeText ={(last_name) => this.setState({last_name})}
-              value={this.state.last_name} />
-
-            <Input
-              label="Email"
-              placeholder="Email"
-              onChangeText ={(email) => this.setState({email})}
-              value={this.state.email} />
-
-            <Input
-              label="password"
-              placeholder="Password"
-              onChangeText ={(password) => this.setState({password})}
-              value={this.state.password}
-              secureTextEntry />
-
-            <Input
-              label="Address"
-              placeholder="Address"
-              onChangeText ={(address) => this.setState({address})}
-              value={this.state.address} />
-
-            <Input
-              label="Tel No."
-              placeholder="Tel No."
-              onChangeText ={(telNo) => this.setState({telNo})}
-              value={this.state.telNo} />
-        </View>
-
-      <View style = {[centerEverything,innerContainer]}>
-          <ButtonComponent
-            type="primary"
-            shape="rectangle"
-            style={buttonStyle}
-            onPress={this.registerUser.bind(this)}
-            text="Sign up"
-          />
-        </View>
-
       </View>
     )
   }
@@ -112,10 +139,18 @@ const styles = {
   container: {
     flex: 1,
   },
-  innerContainer: {
-    flex: 1,
-    justifyContent:'center',
-    // alignItems: 'center'
+  upperContainer: {
+    flex: 3
+  },
+  middleContainer: {
+    flex: 4
+  },
+  bottomContainer: {
+    flex: 3
+  },
+  buttonContainer: {
+    flexDirection: 'column',
+    paddingBottom: 5
   },
   buttonStyle: {
     backgroundColor: '#bfff00',
@@ -125,7 +160,10 @@ const styles = {
     margin: 3
   },
   textStyle:{
-    fontSize:20,
+    fontSize: 25,
+  },
+  labelStyle: {
+    fontSize: 18
   }
 }
 

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {
+  Alert,
   View,
   Text,
 } from 'react-native';
@@ -24,68 +25,95 @@ const deviceHeight = require('Dimensions').get('window').height;
 
 class App extends Component {
 
-  state = {
-    email: '',
-    password: ''
+  constructor(props) {
+    super(props);
+    this.state = {
+      email: '',
+      password: '',
+      buttonState: 'signIn'
+    };
+
+    this.buttonStates = {
+      signIn: {
+        text: 'SIGN IN',
+        onPress: () => {
+          this.loginUser();
+        },
+      },
+      loading: {
+        spinner: true,
+        text: 'SIGNING USER IN'
+      }
+    };
   }
 
  loginUser(){
    const { email,password } = this.state;
-   firebase.auth().signInWithEmailAndPassword(email, password)
-      .then(user => Actions.main({type:'reset'}))
-      .catch((error) => console.log('error'));
+   if (email === '' || password === '') {
+     Alert.alert('Error', 'Please make sure you have all the fields filled in')
+   } else {
+     this.setState({ buttonState: 'loading' });
+     firebase.auth().signInWithEmailAndPassword(email, password)
+        .then(user => {
+          this.setState({ buttonState: 'signIn' })
+          Actions.main({type:'reset'})
+        })
+        .catch((error) => {
+          this.setState({ buttonState: 'signIn' })
+          Alert.alert('Error', error.message)
+        });
+   }
  }
 
 
   render() {
-    const { textStyle,container, skeleton, innerContainer, centerEverything ,buttonStyle} = styles;
+    const { textStyle,container, upperContainer, middleContainer, bottomContainer,
+      skeleton, centerEverything, buttonContainer, buttonStyle, labelStyle} = styles;
     return(
       <View style={[container]}>
         <Header headerText="EXQUISITE" />
-        <View style={[innerContainer]}>
-            <Text style={textStyle}>Login</Text>
-        </View>
-
-        <View style={[innerContainer]}>
-          <View>
-            <Input
-              label="email"
-              placeholder="Email"
-              onChangeText ={(email) => this.setState({email})}
-              value={this.state.email} />
+        <View style={[container]}>
+          <View style={[centerEverything, upperContainer]}>
+              <Text style={textStyle}>Login</Text>
           </View>
 
-          <View>
-            <Input
-              label="password"
-              placeholder="Password"
-              onChangeText ={(password) => this.setState({password})}
-              value={this.state.password}
-              secureTextEntry />
+          <View style={[centerEverything, middleContainer]}>
+            <View style={[buttonContainer]}>
+              <Text style={labelStyle}>Email</Text>
+              <Input
+                placeholder="Email"
+                onChangeText ={(email) => this.setState({email})}
+                value={this.state.email} />
+            </View>
+            <View>
+              <Text style={labelStyle}>Password</Text>
+              <Input
+                placeholder="Password"
+                onChangeText ={(password) => this.setState({password})}
+                value={this.state.password}
+                secureTextEntry />
+            </View>
+          </View>
+
+          <View style={[centerEverything, bottomContainer]}>
+            <ButtonComponent
+              type="primary"
+              shape="rectangle"
+              style={buttonStyle}
+              buttonState={this.state.buttonState}
+              states={this.buttonStates}
+            />
+
+            <ButtonComponent
+              type="primary"
+              shape="rectangle"
+              style={buttonStyle}
+              onPress={() =>Actions.register()}
+              text="SIGN UP"
+            />
           </View>
         </View>
-
-        <View style={[centerEverything,innerContainer]}>
-          <ButtonComponent
-            type="primary"
-            shape="rectangle"
-            style={buttonStyle}
-            onPress={this.loginUser.bind(this)}
-            text="Sign in"
-          />
-
-          <ButtonComponent
-            type="primary"
-            shape="rectangle"
-            style={buttonStyle}
-            onPress={() =>Actions.register()}
-            text="Register new account"
-          />
-        </View>
-
-
       </View>
-
     )
   }
 }
@@ -102,10 +130,18 @@ const styles = {
   container: {
     flex: 1,
   },
-  innerContainer: {
-    flex: 1,
-    justifyContent:'center',
-    // alignItems: 'center'
+  upperContainer: {
+    flex: 3
+  },
+  middleContainer: {
+    flex: 4
+  },
+  bottomContainer: {
+    flex: 3
+  },
+  buttonContainer: {
+    flexDirection: 'column',
+    paddingBottom: 5
   },
   buttonStyle: {
     backgroundColor: '#bfff00',
@@ -114,9 +150,11 @@ const styles = {
     borderRadius: 20,
     margin: 3
   },
-
   textStyle:{
-    fontSize: 20,
+    fontSize: 25,
+  },
+  labelStyle: {
+    fontSize: 18
   }
 }
 

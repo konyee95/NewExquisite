@@ -29,9 +29,9 @@ class SplashScreen extends Component {
   render() {
         const {centerEverything,skeleton,container,innerContainer,textStyle}=styles;
     return (
-      <View style={centerEverything}>
+      <View style={[centerEverything, container]}>
         <Text style={[textStyle]}>Welcome to Exquisite</Text>
-        <View style={innerContainer}>
+        <View style={[innerContainer, centerEverything]}>
           <Spinner />
         </View>
       </View>
@@ -57,7 +57,7 @@ const styles = {
   },
   textStyle:{
     fontSize:30
-    
+
   }
 }
 
