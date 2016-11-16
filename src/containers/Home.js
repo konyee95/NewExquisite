@@ -1,13 +1,19 @@
 import React ,{ Component }from 'react';
 import { AppRegistry,StyleSheet,View , Text } from 'react-native';
 import { Card , CardSection } from './../components/common';
-
+import firebase from 'firebase';
 import { Actions } from 'react-native-router-flux';
 
 const deviceWidth = require('Dimensions').get('window').width;
 const deviceHeight = require('Dimensions').get('window').height;
 
 export default class Home extends Component{
+  componentWillMount(){
+    firebase.database().ref(`/Product`)
+      .on('value', snapshot => { //create real time listener
+      console.log(snapshot.val())
+        });
+  }
 
   render(){
     return(
