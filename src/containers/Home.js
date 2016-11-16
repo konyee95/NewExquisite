@@ -2,18 +2,12 @@ import React ,{ Component }from 'react';
 import { AppRegistry,StyleSheet,View , Text } from 'react-native';
 import { Card , CardSection } from './../components/common';
 
-import ButtonComponent,{ RectangleButton } from 'react-native-button-component';
-import firebase from 'firebase';
 import { Actions } from 'react-native-router-flux';
 
 const deviceWidth = require('Dimensions').get('window').width;
 const deviceHeight = require('Dimensions').get('window').height;
 
 export default class Home extends Component{
-  logoutUser(){
-    firebase.auth().signOut();
-    Actions.auth();
-  }
 
   render(){
     return(
@@ -30,15 +24,6 @@ export default class Home extends Component{
           </CardSection>
         </Card>
 
-
-        <View style={styles.container}>
-          <ButtonComponent
-            type="primary"
-            shape="rectangle"
-            style={styles.buttonStyle}
-            onPress={this.logoutUser.bind(this)}
-            text="Sign out" />
-        </View>
       </View>
     );
   }
