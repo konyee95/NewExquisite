@@ -1,5 +1,6 @@
+import _ from 'lodash';
 import React ,{ Component }from 'react';
-import { AppRegistry,StyleSheet,View , Text } from 'react-native';
+import { AppRegistry,StyleSheet,View , Text ,ListView } from 'react-native';
 import { Card , CardSection } from './../components/common';
 import firebase from 'firebase';
 import { Actions } from 'react-native-router-flux';
@@ -11,25 +12,39 @@ export default class Home extends Component{
   componentWillMount(){
     firebase.database().ref(`/Product`)
       .on('value', snapshot => { //create real time listener
-      console.log(snapshot.val())
-        });
+      this.convertProduct(snapshot.val())
+    });
+  }
+
+  convertProduct(snapshot) {
+    const products = _.map(snapshot, (val, uid) => {
+      return { ...val, uid };
+    })
+
+    this.createDataSource(products);
+  }
+
+  createDataSource({product}) {
+    console.log(product);
+    const ds = new ListView.DataSource({
+      rowHasChanged: (r1, r2) => r1 !== r2
+    });
+    this.dataSource = ds.cloneWithRows(product);
+  }
+
+  renderRow(product) {
+    return <ProductItem product={product} />;
   }
 
   render(){
     return(
       <View style={styles.container}>
-        <Card>
-          <CardSection>
-            <Text style= {styles.title}> Advertisement </Text>
-          </CardSection>
-        </Card>
-
-        <Card>
-          <CardSection>
-            <Text style= {styles.title}> Product  </Text>
-          </CardSection>
-        </Card>
-
+        <ListView
+          contentContainerStyle={styles.listViewContainer}
+          enableEmptySections
+          dataSource={this.dataSource} //data returned from firebase
+          renderRow={this.renderRow} //how we design product item
+        />
       </View>
     );
   }
@@ -42,6 +57,12 @@ const styles = {
     backgroundColor: '#ffbf80',
     justifyContent: 'flex-start',
     alignItems: 'flex-start'
+  },
+  listViewContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   title: {
     fontSize: 18,

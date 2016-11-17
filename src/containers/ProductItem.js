@@ -1,11 +1,14 @@
 import React ,{ Component }from 'react';
 import { AppRegistry,StyleSheet,View , Text } from 'react-native';
 
-class ProductDetail extends Component {
+class ProductItem extends Component {
 
   render(){
+    console.log(this.props.product);
     return(
-      
+      <View>
+        <Text>konyee is so cacat but i love her so much</Text>
+      </View>
     );
   }
 }
@@ -34,3 +37,5 @@ const styles = {
     width: null
   }
 }
+
+export default ProductItem;
